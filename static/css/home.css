@@ -1,0 +1,67 @@
+#conversations {
+    position: absolute;
+    left: 50px;
+    top: 0px;
+
+    border: 2px solid grey;
+
+    width: 475px;
+    height: 100%;
+
+    overflow-y: auto;
+
+    box-shadow: 2px, 2px;
+}
+
+.conversation {
+    border: 1px solid lightgray;
+    padding: 5px;
+    height: 60px;
+}
+
+.conversation:hover {
+    background-color: lightgray;
+}
+
+.navbar {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+
+    background-color: #fa2121;
+    width: 50px;
+    height: 100%;
+}
+
+.nav-list {
+    list-style-type: none;
+}
+
+.nav-item {
+    position: absolute;
+    left: 7px;
+
+    width: 30px;
+
+    padding-top: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.nav-item:hover {
+    background-color: #820f0f;
+}
+
+#settings {
+    top: 70px;
+}
+
+#current-convo {
+    position: absolute;
+    text-align: center;
+}
+
+#open-convo-prompt {
+    font-family: sans-serif;
+    color: #ababab;
+}
