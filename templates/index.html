@@ -4,9 +4,9 @@
         <meta charset='utf-8'>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
-        <link rel="stylesheet" href="/static/css/home.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/index.css">
     </head>
-    <body>
+    <body onresize="resize()">
         <nav class="navbar">
             <ul class="nav-list">
                 <li id="profile-pic" class="nav-item"><img src="/static/images/profile.png" width="30px"></li>
@@ -20,9 +20,12 @@
                 </div>
             {{end}}
         </div>
-        <div id="current-convo">
-            <h1 id="open-convo-prompt">Click on a Conversation to Open</h1>
+        <div id="chat">
+            <div id="chat-form">
+                <textarea id="entry" placeholder="Enter a Message"></textarea>
+                <img id="send-icon" src="/static/images/send.png">
+            </div>
         </div>
+        <script src="/static/js/index.js"></script>
     </body>
-    <script src="/static/js/home.js"></script>
 </html>
