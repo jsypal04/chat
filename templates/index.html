@@ -15,15 +15,20 @@
         </nav>
         <div id="conversations">
             {{range .Conversations}}
-                <div class="conversation">
+                <div id="{{.Id}}" class="conversation" onclick="openConversation('{{.Id}}')">
                     <p>{{.Receiver}}</p>
                 </div>
             {{end}}
         </div>
         <div id="chat">
+            {{if .NotEmpty}}
+                {{range .Content}}
+                    <p>{{.Content}}</p>
+                {{end}}
+            {{end}}
             <div id="chat-form">
                 <textarea id="entry" placeholder="Enter a Message"></textarea>
-                <img id="send-icon" src="/static/images/send.png">
+                <img id="send-icon" src="/static/images/send.png" onclick="sendMessage()">
             </div>
         </div>
         <script src="/static/js/index.js"></script>
