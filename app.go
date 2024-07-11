@@ -4,28 +4,29 @@ import (
 	"net/http"
     "html/template"
     "fmt"
-    "io/ioutil"
     "time"
-    // "encoding/json"
+    "encoding/json"
     
     "github.com/gorilla/mux"
 )
 
 type Message struct {
-    Id int64
-    Content string
+    Id int64 `json:"id"`
+    Sender string `json:"sender"`
+    Receiver string `json:"receiver"`
+    Content string `json:"content"`
 }
 
 type Conversation struct {
-    Id int64
-    Sender string
-    Receiver string
+    Id int64 `json:"id"`
+    Sender string `json:"sender"`
+    Receiver string `json:"receiver"`
 }
 
 type HomePage struct {
-    NotEmpty bool
-    Conversations []Conversation
-    Content []Message
+    NotEmpty bool `json:"notEmpty"`
+    Conversations []Conversation `json:"conversations"`
+    Content []Message `json:"content"`
 }
 
 func main() {
@@ -34,9 +35,21 @@ func main() {
     // dummy data
     texts := []Message{}
     for i := 0; i < 12; i++ {
+        if i % 2 == 0 {
+            text := Message{
+                Id: time.Now().UnixNano(),
+                Sender: "Me",
+                Receiver: "Bob",
+                Content: "Hello World",
+            }
+            texts = append(texts, text)
+            continue
+        }
         text := Message{
             Id: time.Now().UnixNano(),
-            Content: "Hello World: " + string(i),
+            Sender: "Bob",
+            Receiver: "Me",
+            Content: "Goodbye World",
         }
         texts = append(texts, text)
     } // end dummy data
@@ -47,21 +60,6 @@ func main() {
     tmpl := template.Must(template.ParseFiles("templates/index.html"))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        if r.Method == http.MethodPost {
-            resp, err := ioutil.ReadAll(r.Body)
-            if err != nil {
-                fmt.Println(err)
-            }
-            respStr := string(resp)
-
-            message := Message{
-                Id: time.Now().UnixNano(),
-                Content: respStr,
-            }
-            fmt.Println(message)
-            return
-        }
-
         data := HomePage{
             NotEmpty: false,
             Conversations: []Conversation{
@@ -86,7 +84,17 @@ func main() {
             },
             Content: texts,
         }
-        tmpl.Execute(w, data)
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(data)
+    })
+
+    router.HandleFunc("/send", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+            w.Write([]byte("405 Method not allowed."))
+        }
+        var message Message
+        json.NewDecoder(r.Body).Decode(&message)
+        fmt.Println(message)
     })
 	
 	http.ListenAndServe(":80", router)

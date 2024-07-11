@@ -21,11 +21,7 @@
             {{end}}
         </div>
         <div id="chat">
-            {{if .NotEmpty}}
-                {{range .Content}}
-                    <p>{{.Content}}</p>
-                {{end}}
-            {{end}}
+            <div id="chat-messages"></div>
             <div id="chat-form">
                 <textarea id="entry" placeholder="Enter a Message"></textarea>
                 <img id="send-icon" src="/static/images/send.png" onclick="sendMessage()">
