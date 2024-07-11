@@ -12,6 +12,7 @@ import (
 
 type Message struct {
     Id int64 `json:"id"`
+    ConvoID int64 `json:"convoID"`
     Sender string `json:"sender"`
     Receiver string `json:"receiver"`
     Content string `json:"content"`

@@ -1,3 +1,5 @@
+let currentOpenConvo = null;
+
 resize();
 
 /**
@@ -31,7 +33,6 @@ async function openConversation(ID) {
     for (let i = 0; i < myMessages.length; i++) {
         myMessages[i].remove();
     }
-    console.log(myMessages);
     for (let i = 0; i < otherMessages.length; i++) {
         otherMessages[i].remove();
     }
@@ -57,12 +58,19 @@ async function openConversation(ID) {
         message.innerText = res.content[i].content;
         parent.appendChild(message);
     }
+
+    currentOpenConvo = ID;
 }
 
 /**
  * A function to to send a message to the server
  */
 function sendMessage() {
+    if (currentOpenConvo == null) {
+        console.log("You cannot send a message without a conversation open.");
+        return;
+    }
+
     let date = new Date();
     let time = date.getTime();
     let content = document.getElementById('entry');
@@ -70,6 +78,7 @@ function sendMessage() {
         method: 'POST',
         body: JSON.stringify({
             id: time,
+            convoID: currentOpenConvo,
             sender: "Me",
             receiver: "Bob",
             content: content.value
