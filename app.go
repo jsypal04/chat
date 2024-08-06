@@ -3,19 +3,24 @@ package main
 import (
 	"net/http"
     "html/template"
+    "context"
     "fmt"
     "time"
     "encoding/json"
     
     "github.com/gorilla/mux"
+    "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type Message struct {
-    Id int64 `json:"id"`
-    ConvoID int64 `json:"convoID"`
-    Sender string `json:"sender"`
-    Receiver string `json:"receiver"`
-    Content string `json:"content"`
+    Id int64 `json:"id" bson:"id"`
+    ConvoID int64 `json:"convoID" bson:"convo_id"`
+    Sender string `json:"sender" bson:"sender"`
+    Receiver string `json:"receiver" bson:"receiver"`
+    Content string `json:"content" bson:"content"`
 }
 
 type Conversation struct {
@@ -30,7 +35,53 @@ type HomePage struct {
     Content []Message `json:"content"`
 }
 
+// Database helper functions
+func connect(uri string)(*mongo.Client, context.Context, context.CancelFunc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	return client, ctx, cancel, err
+}
+
+func close(client *mongo.Client, ctx context.Context, cancel context.CancelFunc) {
+    defer cancel()
+    defer func() {
+        err := client.Disconnect(ctx)
+        if err != nil {
+            panic(err)
+        }
+    }()
+}
+
+// end database helper functions
+
+// Database connection test
+func testDatabase() {
+    // connect to a local database server
+    client, ctx, cancel, err := connect("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Connected Successfully") // print a success message
+
+	defer cancel()
+	defer func() {
+		err := client.Disconnect(ctx)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	pingerr := client.Ping(ctx, readpref.Primary())
+	if pingerr != nil {
+		panic(err)
+	}
+}
+
 func main() {
+    // test database connection
+    testDatabase()
+
     router := mux.NewRouter()
 
     // dummy data
@@ -96,6 +147,22 @@ func main() {
         var message Message
         json.NewDecoder(r.Body).Decode(&message)
         fmt.Println(message)
+
+        // make a connection to the database
+        client, ctx, cancel, err := connect("mongodb://localhost:27017")
+        if err != nil {
+            panic(err)
+        }
+
+        // get the appropriate collection
+        collection := client.Database("chat").Collection("messages")
+        result, err := collection.InsertMany(ctx, message)
+        if err != nil {
+            panic(err)
+        }
+        fmt.Println(result)
+
+        close(client, ctx, cancel)
     })
 	
 	http.ListenAndServe(":80", router)
