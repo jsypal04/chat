@@ -109,7 +109,8 @@ func main() {
     fs := http.FileServer(http.Dir("static/"))
     router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
-    tmpl := template.Must(template.ParseFiles("templates/index.html"))
+    indexTmpl := template.Must(template.ParseFiles("templates/index.html"))
+    loginTmpl := template.Must(template.ParseFiles("templates/login.html"))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         data := HomePage{
@@ -121,7 +122,7 @@ func main() {
             },
             Content: nil,
         }
-        tmpl.Execute(w, data)
+        indexTmpl.Execute(w, data)
 	})
 
     router.HandleFunc("/id/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -175,6 +176,11 @@ func main() {
 
         // close the connection to the database
         close(client, ctx, cancel)
+    })
+
+    router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Println(r.Method)
+        loginTmpl.Execute(w, nil)
     })
 	
 	http.ListenAndServe(":80", router)
