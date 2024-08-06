@@ -16,11 +16,11 @@ import (
 )
 
 type Message struct {
-    Id int64 `json:"id" bson:"id"`
-    ConvoID int64 `json:"convoID" bson:"convo_id"`
-    Sender string `json:"sender" bson:"sender"`
-    Receiver string `json:"receiver" bson:"receiver"`
-    Content string `json:"content" bson:"content"`
+    Id int64 `json:"id"`
+    ConvoID int64 `json:"convoID"`
+    Sender string `json:"sender"`
+    Receiver string `json:"receiver"`
+    Content string `json:"content"`
 }
 
 type Conversation struct {
@@ -148,6 +148,16 @@ func main() {
         json.NewDecoder(r.Body).Decode(&message)
         fmt.Println(message)
 
+        // convert the message to a bson document
+        var bsonMessage interface{}
+        bsonMessage = bson.D{
+            {"id", message.Id},
+            {"convo_id", message.ConvoID},
+            {"sender", message.Sender},
+            {"receiver", message.Receiver},
+            {"content", message.Content},
+        }
+
         // make a connection to the database
         client, ctx, cancel, err := connect("mongodb://localhost:27017")
         if err != nil {
@@ -156,12 +166,14 @@ func main() {
 
         // get the appropriate collection
         collection := client.Database("chat").Collection("messages")
-        result, err := collection.InsertMany(ctx, message)
+        // insert the message into the collection
+        result, err := collection.InsertOne(ctx, bsonMessage)
         if err != nil {
             panic(err)
         }
         fmt.Println(result)
 
+        // close the connection to the database
         close(client, ctx, cancel)
     })
 	
