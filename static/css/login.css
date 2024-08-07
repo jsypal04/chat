@@ -1,0 +1,11 @@
+#login-portal {
+    border: 2px solid lightgrey;
+    padding: 15px;
+
+    width: 30%;
+}
+
+#pw-input {
+    position: absolute;
+    
+}
