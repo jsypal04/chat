@@ -3,15 +3,23 @@
     <head>
         <meta charset='utf-8'>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Log In</title>
+        <title>Login</title>
         <link rel="stylesheet" type="text/css" href="/static/css/login.css">
+        <link rel="icon" type="image/x-icon" href="static/images/logo.png">
     </head>
     <body>
         <div id="login-portal">
-            <form action="/login" method="POST">
-                <input id="email-input" type="email" placeholder="Email">
-                <input id="pw-input" type="password" placeholder="Password">
-                <button id="login-button" type="submit">Log In</button>
+            <h1 style="font-family: sans-serif; color: #aa0e0e;">Sign In</h1>
+            <form id="login-form" action="/login" method="POST">
+                <div id="login-input-container">
+                    <input class="login-input text-input" type="email" placeholder="Email">
+                    <input class="login-input text-input" type="password" placeholder="Password">
+                    <div id="login-links">
+                        <a class="text login-link" href="#"><strong>Forgot Password</strong></a>
+                        <a class="text login-link" href="#"><strong>Signup</strong></a>
+                    </div>
+                    <input class="login-input button" type="submit" value="Login">
+                </div>
             </form>
         </div>
     </body>
