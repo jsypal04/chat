@@ -111,6 +111,7 @@ func main() {
 
     indexTmpl := template.Must(template.ParseFiles("templates/index.html"))
     loginTmpl := template.Must(template.ParseFiles("templates/login.html"))
+    signupTmpl := template.Must(template.ParseFiles("templates/signup.html"))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         data := HomePage{
@@ -179,8 +180,11 @@ func main() {
     })
 
     router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Println(r.Method)
         loginTmpl.Execute(w, nil)
+    })
+
+    router.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
+        signupTmpl.Execute(w, nil)
     })
 	
 	http.ListenAndServe(":80", router)

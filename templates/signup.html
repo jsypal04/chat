@@ -3,24 +3,27 @@
     <head>
         <meta charset='utf-8'>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
+        <title>Sign Up</title>
         <link rel="stylesheet" type="text/css" href="/static/css/auth.css">
         <link rel="icon" type="image/x-icon" href="static/images/logo.png">
     </head>
     <body>
         <div id="login-portal">
-            <h1 style="font-family: sans-serif; color: #aa0e0e;">Sign In</h1>
-            <form id="login-form" action="/login" method="POST">
+            <h1 style="font-family: sans-serif; color: #aa0e0e;">Sign Up</h1>
+            <form id="login-form" action="/signup" method="POST">
                 <div id="login-input-container">
+                    <input class="login-input text-input" type="text" placeholder="First Name">
+                    <input class="login-input text-input" type="text" placeholder="Last Name"> 
                     <input class="login-input text-input" type="email" placeholder="Email">
                     <input class="login-input text-input" type="password" placeholder="Password">
+                    <input class="login-input text-input" type="password" placeholder="Confirm Password">
                     <div id="login-links">
-                        <a class="text login-link" href="#"><strong>Forgot Password</strong></a>
-                        <a class="text login-link" href="/signup"><strong>Signup</strong></a>
+                        <a class="text login-link" href="/login"><strong>Login Here</strong></a>
                     </div>
-                    <input class="login-input button" type="submit" value="Login">
+                    <input class="login-input button" type="submit" value="Sign Up" onclick="validateInfo()">
                 </div>
             </form>
         </div>
     </body>
+    <script src="/static/js/signup.js"></script>
 </html>
