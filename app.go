@@ -64,18 +64,12 @@ func testDatabase() {
 	}
 	fmt.Println("Connected Successfully") // print a success message
 
-	defer cancel()
-	defer func() {
-		err := client.Disconnect(ctx)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
 	pingerr := client.Ping(ctx, readpref.Primary())
 	if pingerr != nil {
 		panic(err)
 	}
+
+    close(client, ctx, cancel)
 }
 
 func main() {
@@ -180,6 +174,10 @@ func main() {
     })
 
     router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method == http.MethodPost {
+            // redirect to index
+            http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+        }
         loginTmpl.Execute(w, nil)
     })
 
