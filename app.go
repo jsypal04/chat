@@ -15,6 +15,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+// struct definitions for users
+type User struct {
+    FirstName string
+    LastName string
+    Email string
+    Password string
+}
+
+// struct definitions for messages and conversations
 type Message struct {
     Id int64 `json:"id"`
     ConvoID int64 `json:"convoID"`
@@ -182,6 +191,36 @@ func main() {
     })
 
     router.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method == http.MethodPost {
+            // create new user and redirect to index
+            newUser := User{
+                FirstName: r.FormValue("firstName"),
+                LastName: r.FormValue("lastName"),
+                Email: r.FormValue("email"),
+                Password: r.FormValue("password"),
+            }
+            fmt.Println(newUser)
+
+            var bsonUser interface{}
+            bsonUser = bson.D{
+                {"firstName", r.FormValue("firstName")},
+                {"lastName", r.FormValue("lastName")},
+                {"email", r.FormValue("email")},
+                {"password", r.FormValue("password")},
+            }
+
+            // make a connection to the database
+            client, ctx, cancel, err := connect("mongodb://localhost:27017")
+            if err != nil {
+                panic(err)
+            }
+            collection := client.Database("chat").Collection("users")
+            result, err := collection.InsertOne(ctx, bsonUser)
+            fmt.Println(result)
+            close(client, ctx, cancel)
+
+            http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+        }
         signupTmpl.Execute(w, nil)
     })
 	

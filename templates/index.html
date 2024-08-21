@@ -8,13 +8,15 @@
         <link rel="icon" type="image/x-icon" href="static/images/logo.png">
     </head>
     <body onresize="resize()">
-        <nav class="navbar">
-            <ul class="nav-list">
-                <li id="profile-pic" class="nav-item"><img src="/static/images/profile.png" width="30px"></li>
-                <li id="settings" class="nav-item"><img src="/static/images/settings.png" width="30px"></li>
-            </ul>
-        </nav>
+        <div id="profile-picture">
+            <div class="icon-button"><img src="/static/images/profile.png" width="30px"></div>
+        </div>
         <div id="conversations">
+            <div id="convo-list-header">
+                <div class="icon-button"><img src="/static/images/close-sidebar.png" width="30px"></div>
+                <div class="icon-button"><img src="/static/images/plus-icon.svg" width="30px"></div>
+            </div>
+            <hr id="convo-list-divider">
             {{range .Conversations}}
                 <div id="{{.Id}}" class="conversation" onclick="openConversation('{{.Id}}')">
                     <p>{{.Receiver}}</p>
@@ -25,7 +27,7 @@
             <div id="chat-messages"></div>
             <div id="chat-form">
                 <textarea id="entry" placeholder="Enter a Message"></textarea>
-                <img id="send-icon" src="/static/images/send.png" onclick="sendMessage()">
+                <div class="icon-button"><img id="send-icon" src="/static/images/send.png" onclick="sendMessage()"></div>
             </div>
         </div>
         <script src="/static/js/index.js"></script>
