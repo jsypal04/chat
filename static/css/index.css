@@ -14,12 +14,10 @@ body {
     left: 0px;
     top: 0px;
 
-    background-color: rgb(245, 245, 245);
+    background-color: rgb(240, 240, 240);
 
     width: 475px;
     height: 100%;
-
-    overflow-y: auto;
 }
 
 #convo-list-header {
@@ -30,8 +28,8 @@ body {
     justify-content: space-between;
 }
 
-#convo-list-divider {
-    width: 70%;
+#convo-list {
+    overflow-y: auto;
 }
 
 .conversation {
@@ -42,7 +40,7 @@ body {
 }
 
 .conversation:hover {
-    background-color: rgb(220, 220, 220);
+    background-color: rgb(230, 230, 230);
 }
 
 #chat {
@@ -80,6 +78,7 @@ body {
 }
 
 #chat-form {
+    display: none;
     position: fixed;
     bottom: 60px;
 }
@@ -90,24 +89,24 @@ body {
     resize: none;
 
     border-radius: 20px;
-    border: 1px solid lightgray;
+    border: none;
     padding-left: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: rgb(240, 240, 240);
 }
 
-#entry:hover {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-#entry:active {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+#entry:focus {
+    outline: none;
 }
 
 .icon-button {
-    border-radius: 20%;
+    border-radius: 5px;
+    padding: 5px;
 }
 
 .icon-button:hover {
-    background-color: lightgrey;
+    background-color: rgb(230, 230, 230);
 }
 
 #send-icon {

@@ -16,18 +16,19 @@
                 <div class="icon-button"><img src="/static/images/close-sidebar.png" width="30px"></div>
                 <div class="icon-button"><img src="/static/images/plus-icon.svg" width="30px"></div>
             </div>
-            <hr id="convo-list-divider">
+            <div id="convo-list">
             {{range .Conversations}}
                 <div id="{{.Id}}" class="conversation" onclick="openConversation('{{.Id}}')">
                     <p>{{.Receiver}}</p>
                 </div>
             {{end}}
+            </div>
         </div>
         <div id="chat">
             <div id="chat-messages"></div>
             <div id="chat-form">
-                <textarea id="entry" placeholder="Enter a Message"></textarea>
-                <div class="icon-button"><img id="send-icon" src="/static/images/send.png" onclick="sendMessage()"></div>
+                <textarea id="entry" rows="1" placeholder="Enter a Message"></textarea>
+                <img class="icon-button" id="send-icon" src="/static/images/send.png" onclick="sendMessage()">
             </div>
         </div>
         <script src="/static/js/index.js"></script>

@@ -28,6 +28,7 @@ function resize() {
  * @param {number} ID - the id number of a conversation 
  */
 async function openConversation(ID) {
+    document.getElementById("chat-form").style.display = "block";
     let myMessages = document.getElementsByClassName('my-bubble');
     let otherMessages = document.getElementsByClassName('other-bubble');
     for (let i = 0; i < myMessages.length; i++) {
