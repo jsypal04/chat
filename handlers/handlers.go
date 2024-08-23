@@ -112,6 +112,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	loginTmpl.Execute(w, nil)
 }
 
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/login", http.StatusPermanentRedirect)
+}
+
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		// create new user and redirect to index

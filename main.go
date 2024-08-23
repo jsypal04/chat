@@ -21,6 +21,7 @@ func main()  {
 	router.HandleFunc("/id/{id}", handlers.OpenConvoHandler)
 	router.HandleFunc("/send", handlers.SendMessageHandler)
 	router.HandleFunc("/login", handlers.LoginHandler)
+	router.HandleFunc("/logout", handlers.LogoutHandler)
 	router.HandleFunc("/signup", handlers.SignupHandler)
 
 	http.ListenAndServe(":80", router)

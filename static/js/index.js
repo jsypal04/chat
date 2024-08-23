@@ -24,6 +24,19 @@ function resize() {
 }
 
 /**
+ * A function to show and close the profile options for a user
+ */
+function showProfileOptions() {
+    let profileOptions = document.getElementById("profile-options");
+    if (profileOptions.style.display == "none") {
+        profileOptions.style.display = "block";
+    }
+    else if (profileOptions.style.display == "block") {
+        profileOptions.style.display = "none";
+    }
+}
+
+/**
  * A function to fetch the the messages associated with a conversation id and render them in the chat area
  * @param {number} ID - the id number of a conversation 
  */
