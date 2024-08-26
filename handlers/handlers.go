@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
+	"github.com/gorilla/sessions"
 
 	"chat/models"
 	"chat/database"
@@ -15,6 +16,8 @@ import (
 var indexTmpl = template.Must(template.ParseFiles("templates/index.html"))
 var loginTmpl = template.Must(template.ParseFiles("templates/login.html"))
 var signupTmpl = template.Must(template.ParseFiles("templates/signup.html"))
+
+var store = sessions.NewCookieStore([]byte("super-secret"))
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	data := models.HomePage{
@@ -106,6 +109,9 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		session, _ := store.Get(r, "cookie-name")
+		session.Values["authenticated"] = true
+		session.Save(r, w)
 		// redirect to index
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}

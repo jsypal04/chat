@@ -6,6 +6,7 @@ toolchain go1.23.0
 
 require (
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.4.0 // indirect
