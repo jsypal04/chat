@@ -8,6 +8,12 @@
         <link rel="icon" type="image/x-icon" href="static/images/logo.png">
     </head>
     <body onresize="resize()">
+        <div id="new-convo-screen" style="display: none;">
+            <div id="new-convo-modal">
+                <input class="new-convo-input" id="new-recipient" type="email" placeholder="Enter an email: ">
+                <button class="new-convo-input" onclick="createConvo()">Submit</button>
+            </div>
+        </div>
         <div id="profile-picture">
             <div class="icon-button" onclick="showProfileOptions()">
                 <img src="/static/images/profile.png" width="30px">
@@ -31,7 +37,7 @@
         <div id="conversations">
             <div id="convo-list-header">
                 <div class="icon-button"><img src="/static/images/close-sidebar.png" width="30px"></div>
-                <div class="icon-button"><img src="/static/images/plus-icon.svg" width="30px"></div>
+                <div class="icon-button" onclick="showNewConvoModal()"><img src="/static/images/plus-icon.svg" width="30px"></div>
             </div>
             <div id="convo-list">
             {{range .Conversations}}

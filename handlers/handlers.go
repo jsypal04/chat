@@ -27,11 +27,11 @@ func isAuthenticated(r *http.Request) (bool) {
 	return session.Values["authenticated"] == true
 }
 
-func sendErrorCode(w http.ResponseWriter, r *http.Request, statusCode int) {
+func sendErrorCode(w http.ResponseWriter, r *http.Request, statusCode int, message string) {
 	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json")
 	resp := make(map[string]string)
-	resp["message"] = "Unauthorized"
+	resp["message"] = message
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		panic(err)
@@ -58,7 +58,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 func OpenConvoHandler(w http.ResponseWriter, r *http.Request) {
 	if !isAuthenticated(r) {
-		sendErrorCode(w, r, http.StatusUnauthorized)
+		sendErrorCode(w, r, http.StatusUnauthorized, "Unauthorized")
 	} else {
 		// dummy data
 		texts := []models.Message{}
@@ -100,10 +100,10 @@ func OpenConvoHandler(w http.ResponseWriter, r *http.Request) {
 
 func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if !isAuthenticated(r) {
-		sendErrorCode(w, r, http.StatusUnauthorized)
+		sendErrorCode(w, r, http.StatusUnauthorized, "Unauthorized")
 	} else {
 		if r.Method != http.MethodPost {
-			w.Write([]byte("405 Method not allowed."))
+			sendErrorCode(w, r, http.StatusMethodNotAllowed, "Only POST requests are allowed at this endpoint")
 		}
 		var message models.Message
 		json.NewDecoder(r.Body).Decode(&message)
@@ -136,6 +136,16 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	
 		// close the connection to the database
 		database.Close(client, ctx, cancel)
+	}
+}
+
+func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		sendErrorCode(w, r, http.StatusMethodNotAllowed, "Only POST requests are allowed at this endpoint")
+	} else {
+		var newData models.NewConversationData
+		json.NewDecoder(r.Body).Decode(newData)
+		fmt.Println(newData)
 	}
 }
 

@@ -37,6 +37,14 @@ function showProfileOptions() {
 }
 
 /**
+ * A function to show the modal to create a new conversation
+ */
+function showNewConvoModal() {
+    let screen = document.getElementById("new-convo-screen");
+    screen.style.display = "flex";
+}
+
+/**
  * A function to fetch the the messages associated with a conversation id and render them in the chat area
  * @param {number} ID - the id number of a conversation 
  */
@@ -99,4 +107,26 @@ function sendMessage() {
         })
     });
     content.value = "";
+}
+
+/**
+ * A function to create a new conversation
+ */
+function createConvo() {
+    // get the email of the receiver
+    let recipientAddr = document.getElementById("new-recipient");
+    console.log(recipientAddr.value)
+    // close the modal
+    document.getElementById("new-convo-screen").style.display = "none";
+    // get the rest of the data
+    let date = new Date();
+    let time = date.getTime();
+    fetch("http://localhost/new-convo", {
+        method: 'POST',
+        body: JSON.stringify({
+            id: time,
+            receiver: recipientAddr.value
+        })
+    });
+    recipientAddr.value = "";
 }

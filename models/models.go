@@ -23,6 +23,11 @@ type Conversation struct {
     Receiver string `json:"receiver"`
 }
 
+type NewConversationData struct {
+    Id int64 `json:"id"`
+    Receiver string `json:"receiver"`
+}
+
 
 // struct definition for home page data
 type HomePage struct {

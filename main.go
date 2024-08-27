@@ -41,12 +41,16 @@ func main()  {
 	fs := http.FileServer(http.Dir("static/"))
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
+	// Webpage endpoints
 	router.HandleFunc("/", handlers.IndexHandler)
-	router.HandleFunc("/id/{id}", handlers.OpenConvoHandler)
-	router.HandleFunc("/send", handlers.SendMessageHandler)
 	router.HandleFunc("/login", handlers.LoginHandler)
 	router.HandleFunc("/logout", handlers.LogoutHandler)
 	router.HandleFunc("/signup", handlers.SignupHandler)
+
+	// API endpoints
+	router.HandleFunc("/id/{id}", handlers.OpenConvoHandler)
+	router.HandleFunc("/send", handlers.SendMessageHandler)
+	router.HandleFunc("/new-convo", handlers.NewConversationHandler)
 
 	http.ListenAndServe(":80", router)
 }
