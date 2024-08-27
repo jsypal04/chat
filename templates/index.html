@@ -9,7 +9,24 @@
     </head>
     <body onresize="resize()">
         <div id="profile-picture">
-            <div class="icon-button"><img src="/static/images/profile.png" width="30px"></div>
+            <div class="icon-button" onclick="showProfileOptions()">
+                <img src="/static/images/profile.png" width="30px">
+            </div>
+            <div id="profile-options" style="display: none;">
+                <ul id="profile-options-list">
+                    <a class="hyperlink" href="#settings">
+                        <li class="profile-option">
+                            <img src="/static/images/settings.png" width="15px">
+                            <span>Settings</span>
+                        </li>
+                    </a>
+                    <a class="hyperlink" href="/logout">
+                        <li class="profile-option">
+                            <span>Logout</span>
+                        </li>
+                    </a>
+                </ul>
+            </div>
         </div>
         <div id="conversations">
             <div id="convo-list-header">
@@ -18,9 +35,11 @@
             </div>
             <div id="convo-list">
             {{range .Conversations}}
-                <div id="{{.Id}}" class="conversation" onclick="openConversation('{{.Id}}')">
-                    <p>{{.Receiver}}</p>
-                </div>
+                <a class="hyperlink" href="#{{.Id}}">
+                    <div id="{{.Id}}" class="conversation" onclick="openConversation('{{.Id}}')">
+                        <p>{{.Receiver}}</p>
+                    </div>
+                </a>
             {{end}}
             </div>
         </div>
