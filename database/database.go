@@ -5,6 +5,7 @@ import (
 	"context"
 	"time"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
@@ -44,4 +45,30 @@ func TestDatabase() {
 	}
 
     Close(client, ctx, cancel)
+}
+
+// A function to print out the contents of a collection from the database
+func PrintCollection(collectionName string) {
+	// make a database connection
+	client, ctx, cancel, err := Connect("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer Close(client, ctx, cancel)
+	// get the proper collection
+	collection := client.Database("chat").Collection(collectionName)
+	// find all entries
+	cursor, err := collection.Find(ctx, bson.D{{}}, nil)
+	if err != nil {
+		panic(err)
+	}
+	// print the results
+	var results []bson.M
+	err2 := cursor.All(ctx, &results)
+	if err2 != nil {
+		panic(err2)
+	}
+	for _, result := range results {
+		fmt.Println(result)
+	}
 }
