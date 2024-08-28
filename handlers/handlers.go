@@ -56,6 +56,32 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusPermanentRedirect)
 	}
 
+	// get this users email
+	session, err := store.Get(r, "user-cookie")
+	if err != nil {
+		panic(err)
+	}
+	userEmail := session.Values["user"].(string)
+
+	// get this users conversations from the database
+	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	if err != nil { 
+		panic(err) 
+	}
+	collection := client.Database("chat").Collection("conversations")
+	cursor, err := collection.Find(ctx, bson.D{{"sender", userEmail}})
+	if err != nil {
+		panic(err)
+	}
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		panic(err)
+	}
+
+	database.Close(client, ctx, cancel)
+
+	fmt.Println(results)
+
 	// dummy data to render on the page
 	data := models.HomePage{
 		NotEmpty: false,
@@ -85,6 +111,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		session.Values["authenticated"] = true
+		session.Values["user"] = r.FormValue("email")
 		session.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
@@ -100,6 +127,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	session.Values["authenticated"] = false
+	session.Values["user"] = ""
 	session.Save(r, w)
 
 	http.Redirect(w, r, "/login", http.StatusPermanentRedirect)
@@ -250,13 +278,47 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 // The handler for the new conversation endpoint
 func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
+	// check that the client is authenticated
+	if !isAuthenticated(r) {
+		sendErrorCode(w, r, http.StatusUnauthorized, "Unauthorized")
+	}
+
 	// checks that the method is not post
 	if r.Method != http.MethodPost {
 		sendErrorCode(w, r, http.StatusMethodNotAllowed, "Only POST requests are allowed at this endpoint")
 	} else {
 		// decode the data into a struct
 		var newData models.NewConversationData
-		json.NewDecoder(r.Body).Decode(newData)
-		fmt.Println(newData)
+		json.NewDecoder(r.Body).Decode(&newData)
+		
+		// get the email of the user who made the request
+		session, _ := store.Get(r, "user-cookie")
+		var userEmail string = session.Values["user"].(string)
+		
+		// create the bson conversations
+		var bsonConvo interface{} = bson.D{
+			{"id", newData.Id},
+			{"sender", userEmail},
+			{"receiver", newData.Receiver},
+		}
+
+		// add the new conversation to the database
+		client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+		if err != nil {
+			panic(err)
+		}
+
+		// get the collection
+		collection := client.Database("chat").Collection("conversations")
+		result, err := collection.InsertOne(ctx, bsonConvo)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(result)
+
+		database.Close(client, ctx, cancel)
+
+		// refresh the home page
+		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
 }

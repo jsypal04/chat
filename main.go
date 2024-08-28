@@ -12,8 +12,6 @@ func main()  {
 	// test database connection
 	database.TestDatabase()
 
-	database.PrintCollection("users")
-
 	router := mux.NewRouter()
 
 	fs := http.FileServer(http.Dir("static/"))
