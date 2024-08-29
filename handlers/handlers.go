@@ -69,27 +69,35 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err) 
 	}
 	collection := client.Database("chat").Collection("conversations")
+
+	// Get the data from the database
 	cursor, err := collection.Find(ctx, bson.D{{"sender", userEmail}})
 	if err != nil {
 		panic(err)
 	}
-	var results []bson.M
+
+	// decode the data and close the database 
+	var results []models.Conversation
 	if err = cursor.All(ctx, &results); err != nil {
 		panic(err)
 	}
-
 	database.Close(client, ctx, cancel)
 
-	fmt.Println(results)
+	// Get the names of the users
+	var convos []models.RenderedConvo = make([]models.RenderedConvo, len(results), cap(results))
+	for i := 0; i < len(convos); i++ {
+		senderName := database.RetrieveName(results[i].Sender)
+		receiverName := database.RetrieveName(results[i].Receiver)
+		convos[i] = models.RenderedConvo{
+			Id: results[i].Id,
+			SenderName: senderName,
+			ReceiverName: receiverName,
+		}
+	}
 
-	// dummy data to render on the page
 	data := models.HomePage{
 		NotEmpty: false,
-		Conversations: []models.Conversation{
-			{Id: 0, Sender: "Me", Receiver: "Bob"},
-			{Id: 1, Sender: "Me", Receiver: "Fred"},
-			{Id: 2, Sender: "Me", Receiver: "Joe"},
-		},
+		Conversations: convos,
 		Content: nil,
 	}
 	// render the template for the main page
@@ -213,20 +221,11 @@ func OpenConvoHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			texts = append(texts, text)
 		}
-	
-		data := models.HomePage{
-			NotEmpty: true,
-			Conversations: []models.Conversation{
-				{Id: 0, Sender: "Me", Receiver: "Bob"},
-				{Id: 1, Sender: "Me", Receiver: "Fred"},
-				{Id: 2, Sender: "Me", Receiver: "Joe"},
-			},
-			Content: texts,
-		} // end dummy data
+		// end dummy data
 
 		// send the data to the client encoded as json
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(data)
+		json.NewEncoder(w).Encode(texts)
 	}
 }
 

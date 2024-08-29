@@ -43,7 +43,7 @@
             {{range .Conversations}}
                 <a class="hyperlink" href="#{{.Id}}">
                     <div id="{{.Id}}" class="conversation" onclick="openConversation('{{.Id}}')">
-                        <p>{{.Receiver}}</p>
+                        <p>{{.ReceiverName}}</p>
                     </div>
                 </a>
             {{end}}

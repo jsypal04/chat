@@ -69,15 +69,15 @@ async function openConversation(ID) {
         .catch((err) => { console.log(err); });
     
     let parent = document.getElementById('chat-messages');
-    for (let i = 0; i < res.content.length; i++) {
+    for (let i = 0; i < res.length; i++) {
         let message = document.createElement('div');
-        if (res.content[i].sender == 'Me') {
+        if (res[i].sender == 'Me') {
             message.className = "my-bubble";
         } else {
             message.className = "other-bubble";
         }
         message.style.top = (75 * i) + "px";
-        message.innerText = res.content[i].content;
+        message.innerText = res[i].content;
         parent.appendChild(message);
     }
 

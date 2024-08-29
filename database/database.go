@@ -8,6 +8,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"chat/models"
 )
 
 // Database helper functions
@@ -26,9 +28,23 @@ func Close(client *mongo.Client, ctx context.Context, cancel context.CancelFunc)
             panic(err)
         }
     }()
-}
+} // end database helper functions
 
-// end database helper functions
+// A function to get a users name given their email address
+func RetrieveName(email string) string {
+	client, ctx, cancel, err := Connect("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer Close(client, ctx, cancel)
+	collection := client.Database("chat").Collection("users")
+	
+	// Find and decode data
+	var user models.User
+	collection.FindOne(ctx, bson.D{{"email", email}}).Decode(&user)
+
+	return user.FirstName + " " + user.LastName
+}
 
 // Database connection test
 func TestDatabase() {
