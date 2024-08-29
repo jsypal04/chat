@@ -71,6 +71,13 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	collection := client.Database("chat").Collection("conversations")
 
 	// Get the data from the database
+	filter := bson.D{
+		{"$or",
+			bson.A{
+				bson.D{{}}
+			}
+		},
+	}
 	cursor, err := collection.Find(ctx, bson.D{{"sender", userEmail}})
 	if err != nil {
 		panic(err)
