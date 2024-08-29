@@ -86,8 +86,9 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the names of the users
 	var convos []models.RenderedConvo = make([]models.RenderedConvo, len(results), cap(results))
 	for i := 0; i < len(convos); i++ {
-		senderName := database.RetrieveName(results[i].Sender)
-		receiverName := database.RetrieveName(results[i].Receiver)
+		user1 := database.RetrieveName(results[i].Users[0])
+		user2 := database.RetrieveName(results[i].Users[1])
+		if user1 == 
 		convos[i] = models.RenderedConvo{
 			Id: results[i].Id,
 			SenderName: senderName,
@@ -294,11 +295,10 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "user-cookie")
 		var userEmail string = session.Values["user"].(string)
 		
-		// create the bson conversations
-		var bsonConvo interface{} = bson.D{
-			{"id", newData.Id},
-			{"sender", userEmail},
-			{"receiver", newData.Receiver},
+		// put the conversation data in a conversation struct
+		conversation := models.Conversation{
+			Id: newData.Id,
+			Users: []string{userEmail, newData.Receiver},
 		}
 
 		// add the new conversation to the database
@@ -309,7 +309,7 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 
 		// get the collection
 		collection := client.Database("chat").Collection("conversations")
-		result, err := collection.InsertOne(ctx, bsonConvo)
+		result, err := collection.InsertOne(ctx, conversation)
 		if err != nil {
 			panic(err)
 		}

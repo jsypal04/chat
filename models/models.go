@@ -25,8 +25,7 @@ type NewMessageData struct {
 
 type Conversation struct {
     Id int64 `bson:"id"`
-    Sender string `bson:"sender"`
-    Receiver string `bson:"receiver"`
+    Users []string `bson:"users"`
 }
 
 type NewConversationData struct {
