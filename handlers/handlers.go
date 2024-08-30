@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"fmt"
-	"time"
+	"strconv"
 	"net/http"
 	"html/template"
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
 	"github.com/gorilla/sessions"
+	"github.com/gorilla/mux"
 
 	"chat/models"
 	"chat/database"
@@ -74,11 +75,12 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	filter := bson.D{
 		{"$or",
 			bson.A{
-				bson.D{{}}
-			}
+				bson.D{{"user1", userEmail}},
+				bson.D{{"user2", userEmail}},
+			},
 		},
 	}
-	cursor, err := collection.Find(ctx, bson.D{{"sender", userEmail}})
+	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		panic(err)
 	}
@@ -93,13 +95,18 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the names of the users
 	var convos []models.RenderedConvo = make([]models.RenderedConvo, len(results), cap(results))
 	for i := 0; i < len(convos); i++ {
-		user1 := database.RetrieveName(results[i].Users[0])
-		user2 := database.RetrieveName(results[i].Users[1])
-		if user1 == 
-		convos[i] = models.RenderedConvo{
-			Id: results[i].Id,
-			SenderName: senderName,
-			ReceiverName: receiverName,
+		user1 := database.RetrieveName(results[i].User1)
+		user2 := database.RetrieveName(results[i].User2)
+		if results[i].User1 == userEmail {
+			convos[i] = models.RenderedConvo{
+				Id: results[i].Id,
+				ReceiverName: user2,
+			}
+		} else {
+			convos[i] = models.RenderedConvo{
+				Id: results[i].Id,
+				ReceiverName: user1,
+			}
 		}
 	}
 
@@ -208,32 +215,46 @@ func OpenConvoHandler(w http.ResponseWriter, r *http.Request) {
 	if !isAuthenticated(r) {
 		sendErrorCode(w, r, http.StatusUnauthorized, "Unauthorized")
 	} else {
-		// dummy data
-		texts := []models.Message{}
-		for i := 0; i < 12; i++ {
-			if i % 2 == 0 {
-				text := models.Message{
-					Id: time.Now().UnixNano(),
-					Sender: "Me",
-					Receiver: "Bob",
-					Content: "Hello World",
-				}
-				texts = append(texts, text)
+		// get the current logged in user's email
+		session, err := store.Get(r, "user-cookie")
+		if err != nil {
+			panic(err)
+		}
+		userEmail := session.Values["user"]
+
+		// get the conversation id
+		vars := mux.Vars(r)
+		convoIdStr := vars["id"]
+		convoId, err := strconv.ParseInt(convoIdStr, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+
+		// get the messages from the database and close the database
+		client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+		if err != nil {
+			panic(err)
+		}
+		collection := client.Database("chat").Collection("messages")
+		cursor, err := collection.Find(ctx, bson.D{{"convoID", convoId}})
+
+		var messages []models.Message
+		if err = cursor.All(ctx, &messages); err != nil {
+			panic(err)
+		}
+		database.Close(client, ctx, cancel)
+
+		for i := 0; i < len(messages); i++ {
+			if messages[i].Sender != userEmail {
 				continue
 			}
-			text := models.Message{
-				Id: time.Now().UnixNano(),
-				Sender: "Bob",
-				Receiver: "Me",
-				Content: "Goodbye World",
-			}
-			texts = append(texts, text)
+			messages[i].Sender = "Me"
 		}
-		// end dummy data
 
+		fmt.Println(messages)
 		// send the data to the client encoded as json
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(texts)
+		json.NewEncoder(w).Encode(messages)
 	}
 }
 
@@ -249,18 +270,31 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// decode the message into a message struct
-		var message models.Message
-		json.NewDecoder(r.Body).Decode(&message)
-		fmt.Println(message)
+		var msgData models.NewMessageData
+		json.NewDecoder(r.Body).Decode(&msgData)
+		fmt.Println(msgData)
+		fmt.Println(msgData.ConvoID)
+
+		// Get the current user's email
+		session, _ := store.Get(r, "user-cookie")
+		userEmail := session.Values["user"]
+
+		// Get the other user's email
+		var otherEmail string
+		conversation := database.GetConversation(msgData.ConvoID)
+		if userEmail == conversation.User1 {
+			otherEmail = conversation.User2
+		} else {
+			otherEmail = conversation.User1
+		}
 	
-		// convert the message to a bson document
-		var bsonMessage interface{}
-		bsonMessage = bson.D{
-			{"id", message.Id},
-			{"convo_id", message.ConvoID},
-			{"sender", message.Sender},
-			{"receiver", message.Receiver},
-			{"content", message.Content},
+		// convert the NewMessageData to Message
+		message := models.Message{
+			Id: msgData.Id,
+			ConvoID: msgData.ConvoID,
+			Sender: userEmail.(string),
+			Receiver: otherEmail,
+			Content: msgData.Content,
 		}
 	
 		// make a connection to the database
@@ -272,7 +306,7 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		// get the appropriate collection
 		collection := client.Database("chat").Collection("messages")
 		// insert the message into the collection
-		result, err := collection.InsertOne(ctx, bsonMessage)
+		result, err := collection.InsertOne(ctx, message)
 		if err != nil {
 			panic(err)
 		}
@@ -305,7 +339,8 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 		// put the conversation data in a conversation struct
 		conversation := models.Conversation{
 			Id: newData.Id,
-			Users: []string{userEmail, newData.Receiver},
+			User1: userEmail,
+			User2: newData.Receiver,
 		}
 
 		// add the new conversation to the database

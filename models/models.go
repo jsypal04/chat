@@ -10,11 +10,11 @@ type User struct {
 
 // struct definitions for messages and conversations
 type Message struct {
-    Id int64 `json:"id"`
-    ConvoID int64 `json:"convoID"`
-    Sender string `json:"sender"`
-    Receiver string `json:"receiver"`
-    Content string `json:"content"`
+    Id int64 `bson:"id" json:"id"`
+    ConvoID int64 `bson:"convoID" json:"convoID"`
+    Sender string `bson:"sender" json:"sender"`
+    Receiver string `bson:"receiver" json:"receiver"`
+    Content string `bson:"content" json:"content"`
 }
 
 type NewMessageData struct {
@@ -25,7 +25,8 @@ type NewMessageData struct {
 
 type Conversation struct {
     Id int64 `bson:"id"`
-    Users []string `bson:"users"`
+    User1 string `bson:"user1"`
+    User2 string `bson:"user2"`
 }
 
 type NewConversationData struct {
@@ -35,8 +36,7 @@ type NewConversationData struct {
 
 type RenderedConvo struct {
     Id int64 `json:"id"`
-    SenderName string `json:"senderName"`
-    ReceiverName string `json:"receiverName`
+    ReceiverName string `json:"receiverName"`
 }
 
 // struct definition for home page data

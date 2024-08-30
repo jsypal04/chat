@@ -46,6 +46,23 @@ func RetrieveName(email string) string {
 	return user.FirstName + " " + user.LastName
 }
 
+// A function to get a conversation entry from a given conversation id
+func GetConversation(id int64) models.Conversation {
+	// connect to the database and get the proper collection
+	client, ctx, cancel, err := Connect("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer Close(client, ctx, cancel)
+	collection := client.Database("chat").Collection("conversations")
+
+	// Find the conversation and decode the data
+	var conversation models.Conversation
+	collection.FindOne(ctx, bson.D{{"id", id}}).Decode(&conversation)
+
+	return conversation
+}
+
 // Database connection test
 func TestDatabase() {
     // connect to a local database server
@@ -87,4 +104,16 @@ func PrintCollection(collectionName string) {
 	for _, result := range results {
 		fmt.Println(result)
 	}
+}
+
+// A function to clear a collection
+func ClearCollection(collectionName string) {
+	// make a connection to the database
+	client, ctx, cancel, err := Connect("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer Close(client, ctx, cancel)
+	collection := client.Database("chat").Collection(collectionName)
+	collection.DeleteMany(ctx, bson.D{{}})
 }

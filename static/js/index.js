@@ -68,6 +68,12 @@ async function openConversation(ID) {
         })
         .catch((err) => { console.log(err); });
     
+    // if the response is null (ie, empty) simply set the current open convo and return
+    if (res == null) {
+        currentOpenConvo = ID;
+        return;
+    }
+
     let parent = document.getElementById('chat-messages');
     for (let i = 0; i < res.length; i++) {
         let message = document.createElement('div');
@@ -92,7 +98,7 @@ function sendMessage() {
         console.log("You cannot send a message without a conversation open.");
         return;
     }
-
+    console.log(currentOpenConvo);
     let date = new Date();
     let time = date.getTime();
     let content = document.getElementById('entry');
@@ -100,9 +106,7 @@ function sendMessage() {
         method: 'POST',
         body: JSON.stringify({
             id: time,
-            convoID: currentOpenConvo,
-            sender: "Me",
-            receiver: "Bob",
+            convoID: parseInt(currentOpenConvo),
             content: content.value
         })
     });
