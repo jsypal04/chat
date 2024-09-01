@@ -12,9 +12,9 @@ function resize() {
         document.getElementById('conversations').style.width = (width - 50) + "px";
         document.getElementById('chat').style.display = "none";
     } else {
-        document.getElementById('chat').style.display = "block";
+        document.getElementById('chat').style.display = "flex";
         document.getElementById('conversations').style.width = "350px";
-        document.getElementById('chat').style.width = (width - 400) + "px";
+        document.getElementById('chat').style.width = (width - 350) + "px";
     }
 
     // set the chat-form to the proper position and size
@@ -63,11 +63,11 @@ async function openConversation(ID) {
     document.getElementById("chat-form").style.display = "block";
     let myMessages = document.getElementsByClassName('my-bubble');
     let otherMessages = document.getElementsByClassName('other-bubble');
-    for (let i = 0; i < myMessages.length; i++) {
-        myMessages[i].remove();
-    }
-    for (let i = 0; i < otherMessages.length; i++) {
-        otherMessages[i].remove();
+    while (myMessages.length > 0) {
+        myMessages.item(0).remove();
+    }    
+    while (otherMessages.length > 0) {
+        otherMessages.item(0).remove();
     }
 
     let res = await fetch("http://localhost/id/" + ID, {method: 'GET'})
@@ -78,15 +78,15 @@ async function openConversation(ID) {
             console.log("Http request failed with status code " + httpRes.status);
         })
         .catch((err) => { console.log(err); });
-    
+        
     // if the response is null (ie, empty) simply set the current open convo and return
     if (res == null) {
         currentOpenConvo = ID;
         document.getElementById(ID).style.backgroundColor = "#E6E6E6";
         return;
     }
-
-    let parent = document.getElementById('chat-messages');
+    
+    let parent = document.getElementById("chat-messages");
     for (let i = 0; i < res.length; i++) {
         let message = document.createElement('div');
         if (res[i].sender == 'Me') {
@@ -94,7 +94,6 @@ async function openConversation(ID) {
         } else {
             message.className = "other-bubble";
         }
-        message.style.top = (75 * i) + "px";
         message.innerText = res[i].content;
         parent.appendChild(message);
     }
@@ -106,23 +105,33 @@ async function openConversation(ID) {
 /**
  * A function to to send a message to the server
  */
-function sendMessage() {
+async function sendMessage() {
     if (currentOpenConvo == null) {
         console.log("You cannot send a message without a conversation open.");
         return;
     }
-    console.log(currentOpenConvo);
     let date = new Date();
     let time = date.getTime();
     let content = document.getElementById('entry');
-    fetch("http://localhost/send", {
+    let res = await fetch("http://localhost/send", {
         method: 'POST',
         body: JSON.stringify({
             id: time,
             convoID: parseInt(currentOpenConvo),
             content: content.value
         })
-    });
+    }).then((httpRes) => {
+        if (httpRes.ok) {
+            return httpRes.json();
+        }
+        console.log("Request failed with status code: " + httpRes.status);
+    }).catch((err) => { console.log(err); });
+
+    let newMessage = document.createElement("div");
+    newMessage.className = "my-bubble";
+    newMessage.innerText = res.content;
+    document.getElementById('chat-messages').appendChild(newMessage);
+
     content.value = "";
 }
 

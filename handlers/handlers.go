@@ -324,7 +324,6 @@ func OpenConvoHandler(w http.ResponseWriter, r *http.Request) {
 			messages[i].Sender = "Me"
 		}
 
-		fmt.Println(messages)
 		// send the data to the client encoded as json
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(messages)
@@ -345,8 +344,6 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		// decode the message into a message struct
 		var msgData models.NewMessageData
 		json.NewDecoder(r.Body).Decode(&msgData)
-		fmt.Println(msgData)
-		fmt.Println(msgData.ConvoID)
 
 		// Get the current user's email
 		session, _ := store.Get(r, "user-cookie")
@@ -379,14 +376,25 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		// get the appropriate collection
 		collection := client.Database("chat").Collection("messages")
 		// insert the message into the collection
-		result, err := collection.InsertOne(ctx, message)
+		collection.InsertOne(ctx, message)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(result)
 	
 		// close the connection to the database
 		database.Close(client, ctx, cancel)
+
+		// send the new message back to the client with all the information so the client can dipsplay it
+		resp := models.Message{
+			Id: message.Id,
+			ConvoID: message.ConvoID,
+			Sender: "Me",
+			Receiver: otherEmail,
+			Content: message.Content,
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
 	}
 }
 
