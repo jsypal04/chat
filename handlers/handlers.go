@@ -56,6 +56,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// check if the user is authenticated
 	if !isAuthenticated(r) {
 		http.Redirect(w, r, "/login", http.StatusPermanentRedirect)
+		return
 	}
 
 	// get this users email
@@ -125,6 +126,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// check that the user is not authenticated
 	if isAuthenticated(r) {
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+		return
 	}
 
 	// checks if the method is post or get
@@ -185,6 +187,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 // The handler for the logout endpoint
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// this authentication may not be necessary but I decided to do it anyway
+	if !isAuthenticated(r) {
+		sendErrorCode(w, r, http.StatusForbidden, "You must be signed in to log out")
+		return
+	}
+
 	// get the sessions, set authenticated to false, redirect to the login page
 	session, err := store.Get(r, "user-cookie")
 	if err != nil {
@@ -202,6 +210,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	// checks that the user is not authenticated
 	if isAuthenticated(r) {
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+		return
 	}
 
 	// if the method is post
@@ -386,6 +395,7 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 	// check that the client is authenticated
 	if !isAuthenticated(r) {
 		sendErrorCode(w, r, http.StatusUnauthorized, "Unauthorized")
+		return
 	}
 
 	// checks that the method is not post
