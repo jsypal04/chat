@@ -5,7 +5,7 @@ type User struct {
     FirstName string `bson:"firstName"`
     LastName string `bson:"lastName"`
     Email string `bson:"email"`
-    Password string `bson:"password"`
+    Password []byte `bson:"password"`
 }
 
 // struct definitions for messages and conversations
@@ -44,4 +44,16 @@ type HomePage struct {
     NotEmpty bool `json:"notEmpty"`
     Conversations []RenderedConvo `json:"conversations"`
     Content []Message `json:"content"`
+}
+
+// struct definition for the signup page
+type SignupPage struct {
+    Display string `json:"display"`
+    Issue string `json:"issue"`
+}
+
+// struct definition for the login page
+type LoginPage struct {
+    Display string `json:"display"`
+    Issue string `json:"issue"`
 }

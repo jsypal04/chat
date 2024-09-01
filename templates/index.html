@@ -9,9 +9,14 @@
     </head>
     <body onresize="resize()">
         <div id="new-convo-screen" style="display: none;">
-            <div id="new-convo-modal">
-                <input class="new-convo-input" id="new-recipient" type="email" placeholder="Enter an email: ">
-                <button class="new-convo-input" onclick="createConvo()">Submit</button>
+            <div>
+                <div class="icon-button" id="close-new-convo-modal" onclick="closeNewConvoModal()">
+                    <img src="/static/images/x.svg" width="30px">
+                </div>
+                <div id="new-convo-modal">
+                    <input class="new-convo-input" id="new-recipient" type="email" placeholder="Enter an email: ">
+                    <button class="new-convo-input" onclick="createConvo()">Submit</button>
+                </div>
             </div>
         </div>
         <div id="profile-picture">

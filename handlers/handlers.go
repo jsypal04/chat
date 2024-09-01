@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"html/template"
 	"encoding/json"
+	"golang.org/x/crypto/bcrypt"
 	"go.mongodb.org/mongo-driver/bson"
 	"github.com/gorilla/sessions"
 	"github.com/gorilla/mux"
@@ -128,6 +129,41 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// checks if the method is post or get
 	if r.Method == http.MethodPost {
+		// get the entered email and password
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		// connect to the database
+		client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+		if err != nil {
+			panic(err)
+		}
+		defer database.Close(client, ctx, cancel)
+		collection := client.Database("chat").Collection("users")
+
+		// search for the email entered
+		var results models.User
+		collection.FindOne(ctx, bson.D{{"email", email}}).Decode(&results)
+		// check that the user exists
+		if len(results.Password) == 0 {
+			data := models.LoginPage{
+				Display: "block",
+				Issue: "There is no account associated with this email",
+			}
+			loginTmpl.Execute(w, data)
+			return
+		}
+
+		// check that the password is correct
+		if err = bcrypt.CompareHashAndPassword(results.Password, []byte(password)); err != nil {
+			data := models.LoginPage{
+				Display: "block",
+				Issue: "Password is incorrect",
+			}
+			loginTmpl.Execute(w, data)
+			return
+		}
+
 		// if the method is post create a sessions for the user and redirect to index
 		session, err := store.Get(r, "user-cookie")
 		if err != nil {
@@ -137,9 +173,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		session.Values["user"] = r.FormValue("email")
 		session.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	} else {
+		// if the method is get render the login page template
+		data := models.LoginPage{
+			Display: "none",
+			Issue: "",
+		}
+		loginTmpl.Execute(w, data)
 	}
-	// if the method is get render the login page template
-	loginTmpl.Execute(w, nil)
 }
 
 // The handler for the logout endpoint
@@ -165,23 +206,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// if the method is post
 	if r.Method == http.MethodPost {
-		// create new user and save in database
-		newUser := models.User{
-			FirstName: r.FormValue("firstName"),
-			LastName: r.FormValue("lastName"),
-			Email: r.FormValue("email"),
-			Password: r.FormValue("password"),
-		}
-		fmt.Println(newUser)
-
-		var bsonUser interface{}
-		bsonUser = bson.D{
-			{"firstName", r.FormValue("firstName")},
-			{"lastName", r.FormValue("lastName")},
-			{"email", r.FormValue("email")},
-			{"password", r.FormValue("password")},
-		}
-
+		// check that the email does not already exist
 		// make a connection to the database
 		client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
 		if err != nil {
@@ -189,20 +214,59 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		// get collection
 		collection := client.Database("chat").Collection("users")
-		result, err := collection.InsertOne(ctx, bsonUser)
+
+		// search for the email that was entered
+		var users []models.User
+		cursor, _ := collection.Find(ctx, bson.D{{"email", r.FormValue("email")}})
+		if err = cursor.All(ctx, &users); err != nil {
+			panic(err)
+		}
+
+		if len(users) != 0 {
+			// reject the signup credentials
+			signupData := models.SignupPage{
+				Display: "block",
+				Issue: "This email already has an account open.",
+			}
+
+			signupTmpl.Execute(w, signupData)
+			return
+		}
+
+		// hash the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(r.FormValue("password")), 10)
+		if err != nil {
+			panic(err)
+		}
+
+		// create new user and save in database
+		newUser := models.User{
+			FirstName: r.FormValue("firstName"),
+			LastName: r.FormValue("lastName"),
+			Email: r.FormValue("email"),
+			Password: hashedPassword,
+		}
+		fmt.Println(newUser)
+
+		result, err := collection.InsertOne(ctx, newUser)
 		fmt.Println(result)
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println(result)
 		// close the database
 		database.Close(client, ctx, cancel)
 
 		// redirect to the main page
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	} else {
+		// if the method is get, render the signup page template
+		signupData := models.SignupPage{
+			Display: "none",
+			Issue: "",
+		}
+		signupTmpl.Execute(w, signupData)
 	}
-
-	// if the method is get, render the signup page template
-	signupTmpl.Execute(w, nil)
 }
 
 /*************************
@@ -351,11 +415,7 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 
 		// get the collection
 		collection := client.Database("chat").Collection("conversations")
-		result, err := collection.InsertOne(ctx, conversation)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(result)
+		collection.InsertOne(ctx, conversation)
 
 		database.Close(client, ctx, cancel)
 

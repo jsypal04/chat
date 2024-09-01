@@ -11,6 +11,9 @@
         <div id="login-portal">
             <h1 style="font-family: sans-serif; color: #aa0e0e;">Sign Up</h1>
             <form id="login-form" action="/signup" method="POST" onsubmit="validateForm()">
+                <div id="invalid-credentials-alert" style="display: {{.Display}};">
+                    <p>{{.Issue}}</p>
+                </div>
                 <div id="login-input-container">
                     <div class="input-wrapper">
                         <input class="login-input text-input" type="text" placeholder="First Name" name="firstName">

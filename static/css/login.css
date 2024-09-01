@@ -17,6 +17,13 @@ body {
     box-shadow: 0px 0px 8px 8px rgba(0, 0, 0, 0.2);
 }
 
+#invalid-credentials-alert {
+    font-family: sans-serif;
+    background-color: rgb(248, 215, 218);
+    border: 1px solid #aa0e0e;
+    border-radius: 5px;
+}
+
 #login-input-container {
     display: flex;
     flex-direction: column;

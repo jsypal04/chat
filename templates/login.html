@@ -10,6 +10,9 @@
     <body>
         <div id="login-portal">
             <h1 style="font-family: sans-serif; color: #aa0e0e;">Sign In</h1>
+            <div id="invalid-credentials-alert" style="display: {{.Display}};">
+                <p>{{.Issue}}</p>
+            </div>
             <form id="login-form" action="/login" method="POST" onsubmit="validateForm()">
                 <div id="login-input-container">
                     <div class="input-wrapper">

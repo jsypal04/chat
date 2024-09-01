@@ -23,6 +23,8 @@ body {
 
     display: flex; 
     flex-direction: column;
+
+    box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.2);
 }
 
 .new-convo-input {
@@ -172,4 +174,15 @@ body {
     top: 5px;
     right: 5px;
     width: 20px !important;
+}
+
+#close-new-convo-modal {
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 10px;
+    padding: 0px !important;
+}
+
+#close-new-convo-modal:hover {
+    background-color: rgb(240, 240, 240);
 }

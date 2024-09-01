@@ -19,7 +19,7 @@ function resize() {
 
     // set the chat-form to the proper position and size
     let chatForm = document.getElementById('chat-form');
-    chatForm.style.left = Math.floor(0.05 * (width - 400) + 400) + "px";;
+    chatForm.style.left = Math.floor(0.05 * (width - 400) + 400) + "px";
     chatForm.style.width = Math.floor(0.9 * (width - 400)) + "px";
 }
 
@@ -45,10 +45,21 @@ function showNewConvoModal() {
 }
 
 /**
+ * A function to close the modal to create a new conversation
+ */
+function closeNewConvoModal() {
+    let screen = document.getElementById("new-convo-screen");
+    screen.style.display = "none";
+}
+
+/**
  * A function to fetch the the messages associated with a conversation id and render them in the chat area
  * @param {number} ID - the id number of a conversation 
  */
 async function openConversation(ID) {
+    if (currentOpenConvo != null) {
+        document.getElementById(currentOpenConvo).style.backgroundColor = "#F0F0F0";
+    }
     document.getElementById("chat-form").style.display = "block";
     let myMessages = document.getElementsByClassName('my-bubble');
     let otherMessages = document.getElementsByClassName('other-bubble');
@@ -71,6 +82,7 @@ async function openConversation(ID) {
     // if the response is null (ie, empty) simply set the current open convo and return
     if (res == null) {
         currentOpenConvo = ID;
+        document.getElementById(ID).style.backgroundColor = "#E6E6E6";
         return;
     }
 
@@ -88,6 +100,7 @@ async function openConversation(ID) {
     }
 
     currentOpenConvo = ID;
+    document.getElementById(ID).style.backgroundColor = "#E6E6E6";
 }
 
 /**
