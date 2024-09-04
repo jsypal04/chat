@@ -23,6 +23,24 @@ function resize() {
     chatForm.style.width = Math.floor(0.9 * (width - 400)) + "px";
 }
 
+function showNewChatFlag() {
+    setTimeout(() => {
+        document.getElementById("new-chat-flag").style.display = "flex";
+    }, 500);
+}
+
+function hideNewChatFlag() {
+    document.getElementById("new-chat-flag").style.display = "none";
+}
+
+/**
+ * A function to show the user select dropdown
+ */
+function showUserDropdown() {
+    let dropdown = document.getElementById("select-user-dropdown");
+    dropdown.style.display = "block";
+}
+
 /**
  * A function to show and close the profile options for a user
  */
@@ -37,11 +55,36 @@ function showProfileOptions() {
 }
 
 /**
- * A function to show the modal to create a new conversation
+ * A function to show the modal to create a new conversation.
+ * Also gets a list of users for the user to select from
  */
-function showNewConvoModal() {
+async function showNewConvoModal() {
     let screen = document.getElementById("new-convo-screen");
     screen.style.display = "flex";
+
+    // get a list of users
+    let emails = await fetch("http://localhost/get-users")
+        .then((httpRes) => {
+            if (httpRes.ok) {
+                return httpRes.json();
+            }
+            console.log("Request failed with status code " + httpRes.status);
+        }).catch((err) => { console.log(err); });
+
+    // render a dropdown selection
+    let keys = Object.keys(emails);
+    let dropdown = document.getElementById("select-user-dropdown");
+    for (let i = 0; i < keys.length; i++) {
+        let option = document.createElement("p");
+        option.innerText = emails[keys[i]] + " (" + keys[i] + ")";
+        option.classList = "user-option";
+        option.addEventListener("click", () => {
+            document.getElementById("select-user-dropdown").style.display = "none";
+            document.getElementById("new-recipient").value = keys[i];
+        });
+        dropdown.appendChild(option);
+    }
+    
 }
 
 /**
@@ -50,6 +93,12 @@ function showNewConvoModal() {
 function closeNewConvoModal() {
     let screen = document.getElementById("new-convo-screen");
     screen.style.display = "none";
+    document.getElementById("select-user-dropdown").style.display = "none";
+    document.getElementById("new-recipient").value = "";
+    let users = document.getElementsByClassName("user-option");
+    while (users.length > 0) {
+        users[0].remove();
+    }
 }
 
 /**

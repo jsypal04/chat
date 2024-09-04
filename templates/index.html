@@ -14,25 +14,30 @@
                     <img src="/static/images/x.svg" width="30px">
                 </div>
                 <div id="new-convo-modal">
-                    <input class="new-convo-input" id="new-recipient" type="email" placeholder="Enter an email: ">
-                    <button class="new-convo-input" onclick="createConvo()">Submit</button>
+                    <form action="/new-convo" method="POST">
+                        <input class="new-convo-input" id="new-recipient" type="email" name="email" placeholder="Enter an email: " onfocus="showUserDropdown()">
+                        <div id="select-user-dropdown" style="display: none;"></div>
+                        <button class="new-convo-input" id="new-convo-submit" type="submit">Submit</button>
+                    </form>
                 </div>
             </div>
         </div>
-        <div id="profile-picture">
-            <div class="icon-button" onclick="showProfileOptions()">
+        <div id="profile-picture" onclick="showProfileOptions()">
+            <div class="icon-button">
                 <img src="/static/images/profile.png" width="30px">
             </div>
             <div id="profile-options" style="display: none;">
                 <ul id="profile-options-list">
+                    <li class="profile-option">{{.UserEmail}}</li>
+                    <hr>
                     <a class="hyperlink" href="#settings">
-                        <li class="profile-option">
+                        <li class="profile-option profile-option-link">
                             <img src="/static/images/settings.png" width="15px">
                             <span>Settings</span>
                         </li>
                     </a>
                     <a class="hyperlink" href="/logout">
-                        <li class="profile-option">
+                        <li class="profile-option profile-option-link">
                             <span>Logout</span>
                         </li>
                     </a>
@@ -42,7 +47,15 @@
         <div id="conversations">
             <div id="convo-list-header">
                 <div class="icon-button"><img src="/static/images/close-sidebar.png" width="30px"></div>
-                <div class="icon-button" onclick="showNewConvoModal()"><img src="/static/images/plus-icon.svg" width="30px"></div>
+                <div class="icon-button" onclick="showNewConvoModal()" onmouseover="showNewChatFlag()" onmouseleave="hideNewChatFlag()">
+                    <img src="/static/images/plus-icon.svg" width="30px">
+                </div>
+                <div class="description-flag" id="new-chat-flag" style="display: none;">
+                    <div class="up-pointer" id="new-chat-pointer"></div>
+                    <div class="description-flag-content" id="new-chat-flag-content" style="width: 60px;">
+                        New Chat
+                    </div>
+                </div>
             </div>
             <div id="convo-list">
             {{range .Conversations}}

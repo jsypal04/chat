@@ -42,6 +42,7 @@ type RenderedConvo struct {
 // struct definition for home page data
 type HomePage struct {
     NotEmpty bool `json:"notEmpty"`
+    UserEmail string `json:"userEmail"`
     Conversations []RenderedConvo `json:"conversations"`
     Content []Message `json:"content"`
 }

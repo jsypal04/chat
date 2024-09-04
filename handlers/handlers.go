@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"strconv"
+	"time"
 	"net/http"
 	"html/template"
 	"encoding/json"
@@ -114,6 +115,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := models.HomePage{
 		NotEmpty: false,
+		UserEmail: userEmail, 
 		Conversations: convos,
 		Content: nil,
 	}
@@ -410,19 +412,18 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		sendErrorCode(w, r, http.StatusMethodNotAllowed, "Only POST requests are allowed at this endpoint")
 	} else {
-		// decode the data into a struct
-		var newData models.NewConversationData
-		json.NewDecoder(r.Body).Decode(&newData)
-		
 		// get the email of the user who made the request
 		session, _ := store.Get(r, "user-cookie")
 		var userEmail string = session.Values["user"].(string)
+
+		// generate an ID
+		currentTime := time.Now().UnixMilli()
 		
 		// put the conversation data in a conversation struct
 		conversation := models.Conversation{
-			Id: newData.Id,
+			Id: currentTime,
 			User1: userEmail,
-			User2: newData.Receiver,
+			User2: r.FormValue("email"),
 		}
 
 		// add the new conversation to the database
@@ -440,4 +441,47 @@ func NewConversationHandler(w http.ResponseWriter, r *http.Request) {
 		// refresh the home page
 		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
 	}
+}
+
+// The handler for the /get-users route
+func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+	if !isAuthenticated(r) {
+		sendErrorCode(w, r, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// get current user's email
+	session, _ := store.Get(r, "user-cookie")
+	userEmail := session.Values["user"]
+
+	// make a connection to the database
+	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer database.Close(client, ctx, cancel)
+	collection := client.Database("chat").Collection("users")
+	cursor, err := collection.Find(ctx, bson.D{{}})
+	if err != nil {
+		panic(err)
+	}
+
+	// get the users
+	var users []models.User
+	if err = cursor.All(ctx, &users); err != nil {
+		panic(err)
+	}
+	// get a map of emails to names for each user
+	emails := make(map[string]string)
+	for i := 0; i < len(users); i++ {
+		// don't send the current user's email
+		if users[i].Email == userEmail {
+			continue
+		}
+		emails[users[i].Email] = users[i].FirstName + " " + users[i].LastName 
+	}
+	
+	// send the data as json
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(emails)
 }

@@ -27,6 +27,7 @@ func main()  {
 	router.HandleFunc("/id/{id}", handlers.OpenConvoHandler)
 	router.HandleFunc("/send", handlers.SendMessageHandler)
 	router.HandleFunc("/new-convo", handlers.NewConversationHandler)
+	router.HandleFunc("/get-users", handlers.GetUsersHandler)
 
 	http.ListenAndServe(":80", router)
 }
