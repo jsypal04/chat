@@ -23,16 +23,6 @@ function resize() {
     chatForm.style.width = Math.floor(0.9 * (width - 400)) + "px";
 }
 
-function showNewChatFlag() {
-    setTimeout(() => {
-        document.getElementById("new-chat-flag").style.display = "flex";
-    }, 500);
-}
-
-function hideNewChatFlag() {
-    document.getElementById("new-chat-flag").style.display = "none";
-}
-
 /**
  * A function to show the user select dropdown
  */
@@ -78,13 +68,8 @@ async function showNewConvoModal() {
         let option = document.createElement("p");
         option.innerText = emails[keys[i]] + " (" + keys[i] + ")";
         option.classList = "user-option";
-        option.addEventListener("click", () => {
-            document.getElementById("select-user-dropdown").style.display = "none";
-            document.getElementById("new-recipient").value = keys[i];
-        });
         dropdown.appendChild(option);
     }
-    
 }
 
 /**
@@ -93,7 +78,6 @@ async function showNewConvoModal() {
 function closeNewConvoModal() {
     let screen = document.getElementById("new-convo-screen");
     screen.style.display = "none";
-    document.getElementById("select-user-dropdown").style.display = "none";
     document.getElementById("new-recipient").value = "";
     let users = document.getElementsByClassName("user-option");
     while (users.length > 0) {

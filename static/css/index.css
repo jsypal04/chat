@@ -36,6 +36,8 @@ body {
 #new-recipient {
     border: none;
     background-color: rgb(220, 220, 220);
+    position: relative;
+    display: inline-block;
 }
 
 #new-convo-submit {
@@ -45,12 +47,17 @@ body {
 }
 
 #select-user-dropdown {
+    display: none;
     position: absolute;
     background-color: white;
     padding: 0px;
     box-shadow: 0px 10px 10px 5px rgba(0, 0, 0, 0.2);
     /* max-height: 300px;
     overflow-y: auto; */
+}
+
+#new-recipient:focus + #select-user-dropdown {
+    display: block;
 }
 
 .user-option {
@@ -96,6 +103,7 @@ body {
 }
 
 .description-flag {
+    display: none;
     flex-direction: column;
     align-items: center;
 }
@@ -105,22 +113,26 @@ body {
     color: white;
     font-size: small;
     border-radius: 10px;
-    padding: 15px;
+    padding: 10px;
 }
 
 .up-pointer {
     width: 0px;
     height: 0px;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
     border-bottom: 10px solid black;
 }
 
 #new-chat-flag {
     position: absolute;
-    left: 275px;
+    left: 280px;
     top: 50px;
     margin-top: 5px;
+}
+
+#new-chat-btn:hover #new-chat-flag {
+    display: flex;
 }
 
 .hyperlink {

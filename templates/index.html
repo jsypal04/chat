@@ -15,8 +15,8 @@
                 </div>
                 <div id="new-convo-modal">
                     <form action="/new-convo" method="POST">
-                        <input class="new-convo-input" id="new-recipient" type="email" name="email" placeholder="Enter an email: " onfocus="showUserDropdown()">
-                        <div id="select-user-dropdown" style="display: none;"></div>
+                        <input class="new-convo-input" id="new-recipient" type="email" name="email" placeholder="Enter an email: ">
+                        <div id="select-user-dropdown"></div>
                         <button class="new-convo-input" id="new-convo-submit" type="submit">Submit</button>
                     </form>
                 </div>
@@ -47,13 +47,13 @@
         <div id="conversations">
             <div id="convo-list-header">
                 <div class="icon-button"><img src="/static/images/close-sidebar.png" width="30px"></div>
-                <div class="icon-button" onclick="showNewConvoModal()" onmouseover="showNewChatFlag()" onmouseleave="hideNewChatFlag()">
-                    <img src="/static/images/plus-icon.svg" width="30px">
-                </div>
-                <div class="description-flag" id="new-chat-flag" style="display: none;">
-                    <div class="up-pointer" id="new-chat-pointer"></div>
-                    <div class="description-flag-content" id="new-chat-flag-content" style="width: 60px;">
-                        New Chat
+                <div id="new-chat-btn">
+                    <div class="icon-button" onclick="showNewConvoModal()"><img src="/static/images/plus-icon.svg" width="30px"></div>
+                    <div class="description-flag" id="new-chat-flag">
+                        <div class="up-pointer" id="new-chat-pointer"></div>
+                        <div class="description-flag-content" id="new-chat-flag-content" style="width: 60px;">
+                            New Chat
+                        </div>
                     </div>
                 </div>
             </div>
