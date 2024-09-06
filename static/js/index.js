@@ -68,7 +68,29 @@ async function showNewConvoModal() {
         let option = document.createElement("p");
         option.innerText = emails[keys[i]] + " (" + keys[i] + ")";
         option.classList = "user-option";
+        option.addEventListener("click", (e) => {
+            console.log("The option was clicked");
+        });
         dropdown.appendChild(option);
+    }
+}
+
+/**
+ * A function to update the user select dropdown as the user types a name or email
+ */
+function updateUserSelection() {
+    let query = document.getElementById("new-recipient").value.toLowerCase().trim();
+    let options = document.getElementsByClassName("user-option");
+    for (let i = 0; i < options.length; i++) {
+        let cleanOption = options[i].innerText.toLowerCase().trim();
+        let emailStart = cleanOption.indexOf("(") + 1;
+        if (cleanOption.indexOf(query) == 0 || cleanOption.includes(query, emailStart)) {
+            if (options[i].style.display == "none") {
+                options[i].style.display = "block";
+            }
+            continue;
+        }
+        options[i].style.display = "none";
     }
 }
 

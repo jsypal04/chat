@@ -13,11 +13,11 @@ body {
 
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 #new-convo-modal {
     background-color: white;
+    margin-top: 40px;
     border-radius: 20px;
     padding: 40px;
 
@@ -25,6 +25,17 @@ body {
     flex-direction: column;
 
     box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.2);
+}
+
+#close-new-convo-modal {
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 50px;
+    padding: 0px !important;
+}
+
+#close-new-convo-modal:hover {
+    background-color: rgb(240, 240, 240);
 }
 
 .new-convo-input {
@@ -52,8 +63,8 @@ body {
     background-color: white;
     padding: 0px;
     box-shadow: 0px 10px 10px 5px rgba(0, 0, 0, 0.2);
-    /* max-height: 300px;
-    overflow-y: auto; */
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 #new-recipient:focus + #select-user-dropdown {
@@ -251,15 +262,4 @@ body {
     top: 5px;
     right: 5px;
     width: 20px !important;
-}
-
-#close-new-convo-modal {
-    position: absolute;
-    margin-left: 10px;
-    margin-top: 10px;
-    padding: 0px !important;
-}
-
-#close-new-convo-modal:hover {
-    background-color: rgb(240, 240, 240);
 }

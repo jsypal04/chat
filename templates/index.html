@@ -15,7 +15,7 @@
                 </div>
                 <div id="new-convo-modal">
                     <form action="/new-convo" method="POST">
-                        <input class="new-convo-input" id="new-recipient" type="email" name="email" placeholder="Enter an email: ">
+                        <input class="new-convo-input" id="new-recipient" type="email" name="email" placeholder="Enter a name or email: " oninput="updateUserSelection()">
                         <div id="select-user-dropdown"></div>
                         <button class="new-convo-input" id="new-convo-submit" type="submit">Submit</button>
                     </form>
