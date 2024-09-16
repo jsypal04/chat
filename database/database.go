@@ -65,19 +65,19 @@ func GetConversation(id int64) models.Conversation {
 
 // Database connection test
 func TestDatabase() {
-    // connect to a local database server
-    client, ctx, cancel, err := Connect("mongodb://localhost:27017")
+  // connect to a local database server
+  client, ctx, cancel, err := Connect("mongodb://localhost:27017")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Connected Successfully") // print a success message
 
 	pingerr := client.Ping(ctx, readpref.Primary())
 	if pingerr != nil {
 		panic(err)
 	}
 
-    Close(client, ctx, cancel)
+  Close(client, ctx, cancel)
+	fmt.Println("Connected Successfully") // print a success message
 }
 
 // A function to print out the contents of a collection from the database
